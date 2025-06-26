@@ -2,7 +2,7 @@
 const appContainer = document.getElementById('app');
 
 const routes = {
-  '/home': './routes/home.js',
+  '/': './routes/home.js',
   '/about': './routes/about.js',
   '/contact': './routes/contact.js',
   '/404': './routes/404.js'
@@ -10,11 +10,7 @@ const routes = {
 
 let previousRouteCleanup = () => {};
 
-const navigate = async () => {
-  const path = window.location.hash.substring(1) || '/home';
-  console.log(window.location.hash, path);
-  
-
+const loadRoute = async (path) => {
   const routeFile = routes[path] || routes['/404'];
 
   try {
@@ -35,7 +31,23 @@ const navigate = async () => {
   }
 };
 
+const navigate = (path) => {
+  history.pushState(null, null, path);
+  loadRoute(path);
+};
+
 export const initializeRouter = () => {
-  window.addEventListener('hashchange', navigate);
-  navigate();
+  window.addEventListener('click', (e) => {
+    if (e.target.matches('a')) {
+      e.preventDefault();
+      const path = e.target.getAttribute('href');
+      navigate(path);
+    }
+  });
+
+  window.addEventListener('popstate', () => {
+    loadRoute(window.location.pathname);
+  });
+
+  loadRoute(window.location.pathname);
 };
